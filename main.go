@@ -3,11 +3,17 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"math"
 	"os"
 	"roon-lab-assessments/domain"
 	"strconv"
 	"strings"
 )
+
+func gracefulShutdown() {
+	fmt.Println(domain.GRACEFUL_SHUTDOWN_TEXT)
+	os.Exit(1)
+}
 
 func evalrpn(tks []string) {
 	var (
@@ -24,10 +30,16 @@ func evalrpn(tks []string) {
 		if recover() == nil && len(nums) == 1 {
 			fmt.Printf("%v > ", x)
 		} else {
-			fmt.Printf("error > ")
+			fmt.Printf("not allowed operation > ")
 		}
 	}()
 	for _, tk := range tks {
+		if tk == "pi" {
+			tk = fmt.Sprintf("%v", domain.PI)
+		}
+		if tk == "q" {
+			gracefulShutdown()
+		}
 		switch tk {
 		case "+":
 			x = pop() + pop()
@@ -39,6 +51,12 @@ func evalrpn(tks []string) {
 		case "/":
 			x = pop()
 			x = pop() / x
+		case "sqrt":
+			x = math.Sqrt(pop())
+		case "cos":
+			x = math.Cos(pop())
+		case "sin":
+			x = math.Sin(pop())
 		default:
 			var e error
 			x, e = strconv.ParseFloat(tk, 64)
@@ -76,7 +94,6 @@ func main() {
 			if tks := strings.Fields(s); len(tks) > 0 {
 				evalrpn(tks)
 			}
-
 		}
 	}
 }
