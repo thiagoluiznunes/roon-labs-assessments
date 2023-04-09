@@ -3,6 +3,6 @@ build:
 	go build -o bin/rpn
 
 package: build
-	cp bin/rpn dist
-	cp installation.md dist
-	tar -cvzf rpn.tar.gz dist
+	cp -R bin rever-polish-notation
+	cp installation.md rever-polish-notation
+	tar -cvzf rpn.tar.gz rever-polish-notation

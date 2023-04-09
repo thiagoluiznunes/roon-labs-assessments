@@ -1,6 +1,7 @@
 # Folders for packaging
 bin
 dist/*
+rever-polish-notation
 
 # Binaries for programs and plugins
 *.exe
@@ -8,6 +9,8 @@ dist/*
 *.dll
 *.so
 *.dylib
+*.gz
+*.tar
 rpn
 
 # Test binary, built with `go test -c`
