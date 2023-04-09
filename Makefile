@@ -3,4 +3,6 @@ build:
 	go build -o bin/rpn
 
 package: build
-	tar -cvzf dist/rpn.tar.gz bin/rpn installation.md
+	cp bin/rpn dist
+	cp installation.md dist
+	tar -cvzf rpn.tar.gz dist
