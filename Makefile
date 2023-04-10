@@ -1,5 +1,11 @@
 # 'setup' requirements
-build:
+install:
+	go mod tidy
+
+run:
+	go run main.go
+
+build: install
 	go build -o bin/rpn
 
 package: build
