@@ -8,7 +8,7 @@ run:
 build: install
 	go build -o bin/rpn
 
-package: build
-	cp -R bin rever-polish-notation
-	cp installation.md rever-polish-notation
-	tar -cvzf rpn.tar.gz rever-polish-notation
+release: build
+	cp -R bin reverse-polish-notation
+	cp cli-installation.md reverse-polish-notation
+	tar -cvzf rpn.tar.gz reverse-polish-notation

@@ -1,7 +1,7 @@
 # Folders for packaging
 bin
 dist/*
-rever-polish-notation
+reverse-polish-notation
 
 # Binaries for programs and plugins
 *.exe
