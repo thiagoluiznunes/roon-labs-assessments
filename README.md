@@ -3,6 +3,11 @@
 The objective in this project is to build a complete, polished, but _small_ product: A 
 [reverse polish notation calculator](https://en.wikipedia.org/wiki/Reverse_Polish_notation) in the style of a unix command line tool.
 
+# RPN CLI
+It's recommended to use the RPN cli that's already built previouysly if you would not like to execute all the project just to build a new release.
+You can follow the **cli-installation.md** with the ready release binary **rpn.tar.gz** to be used in the installation document.
+
+# RPN Project
 ## Requirements ###
 
 It is necessary to install previously Go language and Make.
