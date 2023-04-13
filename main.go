@@ -31,6 +31,10 @@ func execOperationInStack(operation string) {
 		case "+":
 			result = value + result
 		case "-":
+			if index != 0 {
+				result = result - value
+				continue
+			}
 			result = value - result
 		case "/":
 			result = value / result
@@ -45,9 +49,26 @@ func execOperationInStack(operation string) {
 	stack = []float64{result}
 }
 
+func checkIsAllowedExpression(tks []string) bool {
+	expression := strings.Join(tks[:], " ")
+	for _, value := range domain.NOT_ALLOWED_EXPRESSIONS {
+		if ok := strings.Contains(expression, value); ok {
+			return false
+		}
+	}
+
+	return true
+}
+
 func evalrpn(tks []string) {
 	var isZero bool
 	var x float64
+
+	if ok := checkIsAllowedExpression(tks); !ok {
+		printSlice(stack)
+		fmt.Printf("> ")
+		return
+	}
 	pop := func() float64 {
 		n := len(stack) - 1
 		t := stack[n]
@@ -59,9 +80,11 @@ func evalrpn(tks []string) {
 			printSlice(stack)
 			fmt.Printf("> ")
 		} else {
-			fmt.Printf("not allowed operation > ")
+			printSlice(stack)
+			fmt.Printf("> ")
 		}
 	}()
+	executed := false
 	for _, tk := range tks {
 		if tk == "pi" {
 			tk = fmt.Sprintf("%v", domain.PI)
@@ -73,57 +96,89 @@ func evalrpn(tks []string) {
 		case "+":
 			if len(tks) == 1 {
 				execOperationInStack(tk)
+				executed = true
 				break
 			}
-			var pop1 float64
-			if isZero {
-				pop1 = 0
-			} else {
-				pop1 = pop()
+			if len(tks) > 3 {
+				execOperationInStack(tk)
+				executed = true
+				break
 			}
-			pop2 := pop()
-			x = pop2 + pop1
+			if len(stack) > 1 {
+				var pop1 float64
+				if isZero {
+					pop1 = 0
+				} else {
+					pop1 = pop()
+				}
+				pop2 := pop()
+				x = pop2 + pop1
+			}
 		case "*":
 			if len(tks) == 1 {
 				execOperationInStack(tk)
+				executed = true
 				break
 			}
-			var pop1 float64
-			if isZero {
-				pop()
+			if len(tks) > 3 {
+				execOperationInStack(tk)
+				executed = true
 				break
-			} else {
-				pop1 = pop()
 			}
-			pop2 := pop()
-			x = pop2 * pop1
+			if len(tks) > 1 {
+				var pop1 float64
+				if isZero {
+					pop()
+					break
+				} else {
+					pop1 = pop()
+				}
+				pop2 := pop()
+				x = pop2 * pop1
+			}
 		case "-":
 			if len(tks) == 1 {
 				execOperationInStack(tk)
+				executed = true
 				break
 			}
-			var pop1 float64
-			if isZero {
-				pop1 = 0
-			} else {
-				pop1 = pop()
+			if len(tks) > 3 {
+				execOperationInStack(tk)
+				executed = true
+				break
 			}
-			pop2 := pop()
-			x = pop2 - pop1
+			if len(stack) > 1 {
+				var pop1 float64
+				if isZero {
+					pop1 = 0
+				} else {
+					pop1 = pop()
+				}
+				pop2 := pop()
+				x = pop2 - pop1
+			}
 		case "/":
 			if len(tks) == 1 {
 				execOperationInStack(tk)
+				executed = true
 				break
 			}
-			var pop1 float64
-			if isZero {
-				pop()
+			if len(tks) > 3 {
+				execOperationInStack(tk)
+				executed = true
 				break
-			} else {
-				pop1 = pop()
 			}
-			pop2 := pop()
-			x = pop2 / pop1
+			if len(stack) > 1 {
+				var pop1 float64
+				if isZero {
+					pop()
+					break
+				} else {
+					pop1 = pop()
+				}
+				pop2 := pop()
+				x = pop2 / pop1
+			}
 		case "sqrt":
 			x = math.Sqrt(pop())
 		case "cos":
@@ -137,7 +192,7 @@ func evalrpn(tks []string) {
 				panic(0)
 			}
 		}
-		if x != 0 {
+		if x != 0 && !executed {
 			stack = append(stack, x)
 		} else if len(stack) == 0 {
 			stack = append(stack, x)

@@ -1,5 +1,18 @@
 package domain
 
+var NOT_ALLOWED_EXPRESSIONS []string = []string{
+	"+ +",
+	"++",
+	"- -",
+	"--",
+	"/ /",
+	"//",
+	"* *",
+	"**",
+	"sin sin",
+	"cos cos",
+}
+
 var PI float64 = 3.14
 var HELP_INFO_TEXT string = `
 USAGE:
