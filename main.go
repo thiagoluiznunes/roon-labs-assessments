@@ -10,25 +10,54 @@ import (
 	"strings"
 )
 
-func gracefulShutdown() {
-	fmt.Println(domain.GRACEFUL_SHUTDOWN_TEXT)
-	os.Exit(1)
+var stack []float64
+
+func printSlice(s []float64) {
+	if len(s) == 0 {
+		return
+	}
+	if s[0] != 0 {
+		fmt.Printf("%v ", s[0])
+	} else if s[0] == 0 && len(stack) == 1 {
+		fmt.Printf("%v ", s[0])
+	}
+	printSlice(s[1:])
+}
+
+func execOperationInStack(operation string) {
+	var result float64
+	for index, value := range stack {
+		switch operation {
+		case "+":
+			result = value + result
+		case "-":
+			result = value - result
+		case "/":
+			result = value / result
+		case "*":
+			if index != 0 {
+				result = value * result
+				continue
+			}
+			result = value
+		}
+	}
+	stack = []float64{result}
 }
 
 func evalrpn(tks []string) {
-	var (
-		nums []float64
-		x    float64
-	)
+	var isZero bool
+	var x float64
 	pop := func() float64 {
-		n := len(nums) - 1
-		t := nums[n]
-		nums = nums[:n]
+		n := len(stack) - 1
+		t := stack[n]
+		stack = stack[:n]
 		return t
 	}
 	defer func() {
-		if recover() == nil && len(nums) == 1 {
-			fmt.Printf("%v > ", x)
+		if recover() == nil {
+			printSlice(stack)
+			fmt.Printf("> ")
 		} else {
 			fmt.Printf("not allowed operation > ")
 		}
@@ -42,15 +71,59 @@ func evalrpn(tks []string) {
 		}
 		switch tk {
 		case "+":
-			x = pop() + pop()
+			if len(tks) == 1 {
+				execOperationInStack(tk)
+				break
+			}
+			var pop1 float64
+			if isZero {
+				pop1 = 0
+			} else {
+				pop1 = pop()
+			}
+			pop2 := pop()
+			x = pop2 + pop1
 		case "*":
-			x = pop() * pop()
+			if len(tks) == 1 {
+				execOperationInStack(tk)
+				break
+			}
+			var pop1 float64
+			if isZero {
+				pop()
+				break
+			} else {
+				pop1 = pop()
+			}
+			pop2 := pop()
+			x = pop2 * pop1
 		case "-":
-			x = pop()
-			x = pop() - x
+			if len(tks) == 1 {
+				execOperationInStack(tk)
+				break
+			}
+			var pop1 float64
+			if isZero {
+				pop1 = 0
+			} else {
+				pop1 = pop()
+			}
+			pop2 := pop()
+			x = pop2 - pop1
 		case "/":
-			x = pop()
-			x = pop() / x
+			if len(tks) == 1 {
+				execOperationInStack(tk)
+				break
+			}
+			var pop1 float64
+			if isZero {
+				pop()
+				break
+			} else {
+				pop1 = pop()
+			}
+			pop2 := pop()
+			x = pop2 / pop1
 		case "sqrt":
 			x = math.Sqrt(pop())
 		case "cos":
@@ -64,8 +137,19 @@ func evalrpn(tks []string) {
 				panic(0)
 			}
 		}
-		nums = append(nums, x)
+		if x != 0 {
+			stack = append(stack, x)
+		} else if len(stack) == 0 {
+			stack = append(stack, x)
+		} else {
+			isZero = true
+		}
 	}
+}
+
+func gracefulShutdown() {
+	fmt.Println(domain.GRACEFUL_SHUTDOWN_TEXT)
+	os.Exit(1)
 }
 
 func main() {
