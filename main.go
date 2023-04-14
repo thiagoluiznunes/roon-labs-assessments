@@ -11,15 +11,26 @@ import (
 )
 
 var stack []float64
+var isInterativeMode = false
 
 func printSlice(s []float64) {
 	if len(s) == 0 {
 		return
 	}
-	if s[0] != 0 {
-		fmt.Printf("%v ", s[0])
-	} else if s[0] == 0 && len(stack) == 1 {
-		fmt.Printf("%v ", s[0])
+	value := fmt.Sprintf("%v", s[0])
+	if value != "0" {
+		if !isInterativeMode {
+			fmt.Println(value)
+		} else {
+			fmt.Printf("%v ", value)
+		}
+
+	} else if value == "0" && len(stack) == 1 {
+		if !isInterativeMode {
+			fmt.Println(value)
+		} else {
+			fmt.Printf("%v ", value)
+		}
 	}
 	printSlice(s[1:])
 }
@@ -60,13 +71,15 @@ func checkIsAllowedExpression(tks []string) bool {
 	return true
 }
 
-func evalrpn(tks []string) {
+func evalrpn(tks []string, interactiveMode bool) {
 	var isZero bool
 	var x float64
 
 	if ok := checkIsAllowedExpression(tks); !ok {
-		printSlice(stack)
-		fmt.Printf("> ")
+		if interactiveMode {
+			printSlice(stack)
+			fmt.Printf("> ")
+		}
 		return
 	}
 	pop := func() float64 {
@@ -77,11 +90,20 @@ func evalrpn(tks []string) {
 	}
 	defer func() {
 		if recover() == nil {
-			printSlice(stack)
-			fmt.Printf("> ")
+			if interactiveMode {
+				printSlice(stack)
+				fmt.Printf("> ")
+			} else {
+
+				printSlice(stack)
+			}
 		} else {
-			printSlice(stack)
-			fmt.Printf("> ")
+			if interactiveMode {
+				printSlice(stack)
+				fmt.Printf("> ")
+			} else {
+				printSlice(stack)
+			}
 		}
 	}()
 	executed := false
@@ -218,11 +240,11 @@ func main() {
 		default:
 			operation := strings.Join(args[1:], " ")
 			if tks := strings.Fields(operation); len(tks) > 0 {
-				evalrpn(tks)
+				evalrpn(tks, isInterativeMode)
 			}
-			fmt.Println()
 		}
 	} else {
+		isInterativeMode = true
 		stdin := bufio.NewReader(os.Stdin)
 		fmt.Printf("> ")
 		for {
@@ -231,7 +253,7 @@ func main() {
 				break
 			}
 			if tks := strings.Fields(s); len(tks) > 0 {
-				evalrpn(tks)
+				evalrpn(tks, isInterativeMode)
 			}
 		}
 	}
